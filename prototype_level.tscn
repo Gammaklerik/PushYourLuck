@@ -1,0 +1,135 @@
+[gd_scene format=3 uid="uid://dpeaoeqmddxc6"]
+
+[ext_resource type="Script" uid="uid://dq6pathy5ievp" path="res://dice_pool.gd" id="1_8sc3k"]
+[ext_resource type="Script" uid="uid://57u3ie5sqphc" path="res://game_manager.gd" id="1_yjhn6"]
+[ext_resource type="PackedScene" uid="uid://2xprqtmbx0kd" path="res://die.tscn" id="2_8sc3k"]
+[ext_resource type="PackedScene" uid="uid://cgcmv1rtys5i0" path="res://targetting_line.tscn" id="2_qkken"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_yjhn6"]
+font_size = 60
+
+[sub_resource type="LabelSettings" id="LabelSettings_qkken"]
+font_size = 35
+font_color = Color(0.638974, 0, 0.0027083172, 1)
+outline_size = 5
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_w86y6"]
+font_size = 30
+
+[node name="prototype_level" type="Node2D" unique_id=1969773044]
+
+[node name="game_manager" type="Node" parent="." unique_id=349319180]
+script = ExtResource("1_yjhn6")
+targetting_line = ExtResource("2_qkken")
+die_scn = ExtResource("2_8sc3k")
+
+[node name="canvas" type="CanvasLayer" parent="." unique_id=2011830559]
+
+[node name="ui" type="Control" parent="canvas" unique_id=612373676]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1151.0
+offset_bottom = 648.0
+mouse_filter = 2
+
+[node name="reroll" type="Button" parent="canvas/ui" unique_id=2055222769]
+visible = false
+layout_mode = 0
+offset_right = 54.0
+offset_bottom = 31.0
+text = "Reroll"
+metadata/_edit_use_anchors_ = true
+
+[node name="reset_game" type="Button" parent="canvas/ui" unique_id=1105751530]
+visible = false
+layout_mode = 0
+offset_top = 38.0
+offset_right = 98.0
+offset_bottom = 69.0
+text = "New Round"
+
+[node name="ready" type="Button" parent="canvas/ui" unique_id=1086966945]
+layout_mode = 0
+offset_left = 484.0
+offset_top = 260.0
+offset_right = 540.0
+offset_bottom = 291.0
+text = "Ready"
+
+[node name="hp" type="Label" parent="canvas/ui" unique_id=1853663332]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -129.5
+offset_top = -83.0
+offset_right = 129.5
+grow_horizontal = 2
+grow_vertical = 0
+text = "99/99 HP"
+label_settings = SubResource("LabelSettings_yjhn6")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="invalid_target" type="Label" parent="canvas/ui" unique_id=1536942186]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "INVALID TARGET"
+label_settings = SubResource("LabelSettings_qkken")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="round_count" type="Label" parent="canvas/ui" unique_id=1876585393]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.5
+offset_right = 50.5
+offset_bottom = 23.0
+grow_horizontal = 2
+text = "Round 99999"
+label_settings = SubResource("LabelSettings_w86y6")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="dice_pool" type="Node2D" parent="." unique_id=2013648158]
+script = ExtResource("1_8sc3k")
+
+[node name="enemy_dice" type="Node2D" parent="dice_pool" unique_id=1690577682]
+
+[node name="player_dice" type="Node2D" parent="dice_pool" unique_id=828763913]
+
+[node name="die_01" parent="dice_pool/player_dice" unique_id=157864649 groups=["player_die"] instance=ExtResource("2_8sc3k")]
+position = Vector2(227, 280)
+face_1 = "damage_1"
+face_2 = "damage_2"
+face_5 = "damage_1"
+face_6 = "duplicate"
+
+[node name="die_02" parent="dice_pool/player_dice" unique_id=489334620 groups=["player_die"] instance=ExtResource("2_8sc3k")]
+position = Vector2(318, 202)
+face_1 = "nullify"
+face_3 = "block_2"
+face_5 = "heal_2"
+face_6 = "damage_1"
+
+[node name="die_03" parent="dice_pool/player_dice" unique_id=746162769 groups=["player_die"] instance=ExtResource("2_8sc3k")]
+position = Vector2(313, 379)
+face_1 = "reroll"
+face_3 = "damage_1"
+face_5 = "ursa_major"
+face_6 = "reroll"
+
+[connection signal="pressed" from="canvas/ui/reroll" to="dice_pool" method="_on_reroll_pressed"]
+[connection signal="pressed" from="canvas/ui/reset_game" to="game_manager" method="_on_reset_game_pressed"]
+[connection signal="pressed" from="canvas/ui/ready" to="game_manager" method="_on_ready_pressed"]
+[connection signal="visibility_changed" from="canvas/ui/invalid_target" to="game_manager" method="_on_invalid_target_visibility_changed"]
