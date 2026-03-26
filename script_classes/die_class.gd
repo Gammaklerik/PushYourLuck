@@ -15,14 +15,16 @@ signal die(dice)
 @export_enum("block_1", "block_2", "block_3", "damage_1", "damage_2", "damage_3", "duplicate", "heal_1", "heal_2", "heal_3", "nullify", "reroll", "ursa_major") var face_4 : String
 @export_enum("block_1", "block_2", "block_3", "damage_1", "damage_2", "damage_3", "duplicate", "heal_1", "heal_2", "heal_3", "nullify", "reroll", "ursa_major") var face_5 : String
 @export_enum("block_1", "block_2", "block_3", "damage_1", "damage_2", "damage_3", "duplicate", "heal_1", "heal_2", "heal_3", "nullify", "reroll", "ursa_major") var face_6 : String
-var base_faces : Array[String] = [face_1, face_2, face_3, face_4, face_5, face_6]
-var current_faces : Array[String] = [face_1, face_2, face_3, face_4, face_5, face_6]
+var current_faces : Array[String] = ["", "", "", "", "", ""]
+var base_faces : Array[String]
+var prev_face_i : int = -1
 var face_i : int : # Index of the current visible die face
 	set(value):
+		prev_face_i = face_i
 		face_i = clampi(value, 0, 5)
 		$die_face.texture = face_textures[face_i]
 
-var face_textures : Array[CompressedTexture2D] # Array of the die face textures
+var face_textures : Array[CompressedTexture2D] = [null, null, null, null, null, null] # Array of the die face textures
 var interactable : bool = false # Determines whether or not the player can interact with the die
 var max_ability_count : int
 var ability_count : int = 1 :
@@ -46,9 +48,11 @@ var selecting_face : bool = false :
 		selecting_face = value
 		if selecting_face:
 			$die_faces.show()
+			$faces_bg.show()
 			$selection_area.show()
 		else:
 			$die_faces.hide()
+			$faces_bg.hide()
 			$selection_area.hide()
 var hovered_face : Area2D
 var duplicating : bool = false:
@@ -57,39 +61,21 @@ var duplicating : bool = false:
 		if duplicating:
 			$duplication.show()
 			for target in targets:
-				target.targetter = null
+				target.targetters.remove_at(target.targetters.find(self))
 			targets.clear()
 			set_ability_count()
 		else:
 			$duplication.hide()
-			current_faces.set(face_i, base_faces[face_i])
+			current_faces[face_i] = base_faces.duplicate()[face_i]
 			$die_face.texture = face_textures[face_i]
 			for target in targets:
 				target.inactive = false
-				target.targetter = null
+				target.targetters.remove_at(target.targetters.find(self))
 			targets.clear()
 			set_ability_count()
 
 var targets : Array[Area2D]
-var targetter : Area2D
-
-func _ready() -> void:
-	# Set player dice to blue and enemy dice to red.
-	if is_in_group("player_die"):
-		base_faces = [face_1, face_2, face_3, face_4, face_5, face_6]
-		current_faces = [face_1, face_2, face_3, face_4, face_5, face_6]
-		load_faces()
-		$die_bg.modulate = Color(0, 1, 1, 1)
-		for face in $die_faces.get_children():
-			face.modulate = Color(0, 1, 1, 1)
-		is_setup = true
-		roll()
-	elif is_in_group("enemy_die"):
-		print("THIS IS AN ENEMY")
-		$die_bg.modulate = Color(1, 0, 0, 1)
-		for face in $die_faces.get_children():
-			face.modulate = Color(1, 0, 0, 1)
-		connect("die", Callable(gm, "enemy_death"))
+var targetters : Array[Area2D]
 
 func _process(delta: float) -> void:
 	if is_setup:
@@ -99,12 +85,12 @@ func _process(delta: float) -> void:
 		if gm.targetting && !target_lines.is_empty() && gm.targetting_die == self:
 			target_lines[current_target_line].set_point_position(1, get_local_mouse_position())
 		
-		if selecting_face && Input.is_action_just_pressed("interact"):
+		if selecting_face && Input.is_action_just_pressed("interact") && hovered_face != null:
 			face_i = hovered_face.get_index()
 			selecting_face = false
 			for target in targets:
 				target.inactive = false
-				target.targetter = null
+				target.targetters.remove_at(target.targetters.find(self))
 			targets.clear()
 			set_ability_count()
 		
@@ -112,7 +98,7 @@ func _process(delta: float) -> void:
 		# this die is an interactable player die when the interact key
 		# was pressed, and this die has more uses of its ability available;
 		# the pressed die is set as the targetting die and targetting is activated.
-		if !gm.targetting && interactable && is_in_group("player_die") && Input.is_action_just_pressed("interact") && ability_count != 0:
+		if !gm.targetting && interactable && is_in_group("player_die") && Input.is_action_just_pressed("interact") && ability_count != 0 && !inactive:
 			gm.new_targetting_die(self)
 		# If targetting is active, the interact key is pressed while the die
 		# is interactable and this die is a valid target for the targetting die
@@ -127,53 +113,78 @@ func _process(delta: float) -> void:
 				gm.targetting_die.inactive = true
 				self.ability_count -= 1
 			elif gm.targetting_die.face_is("reroll"):
-				self.roll()
+				if prev_face_i != -1:
+					for target in targets:
+						target.inactive = false
+						target.targetters.remove_at(target.targetters.find(self))
+					targets.clear()
+					face_i = prev_face_i
+					set_ability_count()
+					set_active_face()
+				else:
+					self.roll()
 			elif gm.targetting_die.face_is("ursa_major"):
 				selecting_face = true
 			elif gm.targetting_die.face_is("duplicate"):
 				gm.targetting_die.current_faces.set(gm.targetting_die.face_i, self.current_faces[face_i])
 				gm.targetting_die.duplicating = true
 				gm.targetting_die.get_node("die_face").texture = face_textures[face_i]
-			# If the targetting die has no more ability uses left, it is
-			# removed as the current targetting die and the game is no longer targetting
-			#if gm.targetting_die.ability_count == 0 || #gm.targetting_die.duplicating:
-			#	gm.targetting = false
-			#else:
-			#	pass
 			gm.targetting = false
-			targetter = gm.targetting_die # Set this die's targetter to the current targetting die
-		elif gm.targetting && Input.is_action_just_pressed("deselect"):
-			gm.targetting = false
-		elif Input.is_action_just_pressed("deselect") && is_in_group("enemy_die") && interactable:
-			targetter.target_lines[targetter.targets.find(self)].queue_free()
-			targetter.target_lines.remove_at(targetter.targets.find(self))
-			targetter.targets.remove_at(targetter.targets.find(self))
-			inactive = false
-			targetter.inactive = false
-			if targetter.ability_count < targetter.max_ability_count:
-				targetter.ability_count += 1
-			if ability_count < max_ability_count:
-				ability_count += 1
+			targetters.append(gm.targetting_die) # Set this die's targetter to the current targetting die
+		elif (gm.targetting || selecting_face) && Input.is_action_just_pressed("deselect"):
+			if gm.targetting:
+				gm.targetting = false
+			if selecting_face:
+				selecting_face = false
+				for targetter in targetters:
+					if targetter.current_faces[targetter.face_i] == "ursa_major" && targetter.targets.find(self) != -1:
+						targetter.target_lines[targetter.targets.find(self)].queue_free()
+						targetter.target_lines.remove_at(targetter.targets.find(self))
+						targetter.targets.remove_at(targetter.targets.find(self))
+						targetter.ability_count += 1
+		elif Input.is_action_just_pressed("deselect") && interactable:
+			for targetter in targetters:
+				if targetter.targets.find(self) != -1:
+					targetter.target_lines[targetter.targets.find(self)].queue_free()
+					targetter.target_lines.remove_at(targetter.targets.find(self))
+					targetter.targets.remove_at(targetter.targets.find(self))
+					if targetter.current_faces[targetter.face_i] == "reroll" || targetter.current_faces[targetter.face_i] == "ursa_major":
+						if targetter.ability_count < targetter.max_ability_count:
+							targetter.ability_count += 1
+						for target in targets:
+							target.inactive = false
+							target.targetters.remove_at(target.targetters.find(self))
+						targets.clear()
+						face_i = prev_face_i
+						set_ability_count()
+						set_active_face()
+					else:
+						inactive = false
+						targetter.inactive = false
+						if targetter.ability_count < targetter.max_ability_count:
+							targetter.ability_count += 1
+						if ability_count < max_ability_count:
+							ability_count += 1
 
 func load_faces() -> void:
 	# Load die face textures
-	for face in current_faces:
-		if face != null || face != "":
-			var image : CompressedTexture2D = load("res://art/dieFaces/" + face + ".png")
-			face_textures.append(image)
+	for f_i in current_faces.size():
+		if current_faces[f_i] == "":
+			face_textures[f_i] = null
 		else:
-			face_textures.append(null)
+			var image : CompressedTexture2D = load("res://art/dieFaces/" + current_faces[f_i] + ".png")
+			face_textures[f_i] = image
 
 func roll() -> void:
 	# Set a random face
-	face_i = randi_range(0, face_textures.size() - 1)
+	face_i = randi_range(0, current_faces.size() - 1)
 	set_ability_count()
-	
-	if is_in_group("enemy_die") && face_is("nullify"):
-		var random_player_die : Area2D = gm.dice_pool.get_child(1).get_children().pick_random()
-		random_player_die.inactive = true
-		targets.append(random_player_die)
-		random_player_die.targetter = self
+	for target in targets:
+		target.inactive = false
+		target.targetters.remove_at(target.targetters.find(self))
+	targets.clear()
+	$die_face.texture = face_textures[face_i]
+	set_active_face()
 
 func set_ability_count() -> void:
 	# Set the ability uses of the die; 1-3 or 1
@@ -190,9 +201,14 @@ func set_ability_count() -> void:
 
 func damage(total_damage: int) -> void:
 	for damage in total_damage:
+		# If all the faces are empty, remove the die and return
+		if current_faces.count("") == 6:
+			die.emit(self)
+			queue_free()
+			return
 		# If the die doesn't have an empty face, that face is removed
 		# if the face up face is empty, a random face is removed.
-		if current_faces[face_i] != "":
+		if !current_faces[face_i].is_empty():
 			current_faces[face_i] = ""
 			face_textures[face_i] = null
 			$die_face.texture = null
@@ -202,10 +218,10 @@ func damage(total_damage: int) -> void:
 				random_i = randi_range(0, current_faces.size() - 1)
 			current_faces[random_i] = ""
 			face_textures[random_i] = null
-			# If all the faces are empty, remove the die and return
-			if current_faces.count("") == 6:
-				die.emit(self)
-				return
+		if current_faces.count("") == 6:
+			die.emit(self)
+			queue_free()
+			return
 	# Reload the faces
 	load_faces()
 
@@ -233,6 +249,7 @@ func _on_mouse_entered() -> void:
 	# Show the die's faces above the die if there is no Ursa Major target
 	if !selecting_face:
 		$die_faces.show()
+		$faces_bg.show()
 	# Set the die to interactable
 	if !interactable:
 		interactable = true
@@ -243,6 +260,7 @@ func _on_mouse_exited() -> void:
 	# interactable if there is no Ursa Major target
 	if !selecting_face:
 		$die_faces.hide()
+		$faces_bg.hide()
 	if interactable:
 		interactable = false
 
@@ -278,65 +296,71 @@ func _on_remove_button_pressed() -> void:
 	duplicating = false
 
 func setup() -> void:
-	# Randomize the points based on the difficulty level
-	var points : int = randi_range(dc.get("min_points"), dc.get("max_points"))
-	while points != 0:
-		# Get a random index
-		var f_i : int = randi_range(0, current_faces.size() - 1)
-		# Create a variable to reference the face
-		var face : String = current_faces[f_i]
-		# If all faces on the die are maxed out or a face that cannot
-		# be upgraded, the die setup is completed.
-		if faces_maxed():
-			base_faces = current_faces
-			load_faces()
-			is_setup = true
-			roll()
-			return
-		# Reference what the max level faces are
-		var max_faces : Array[String] = ["block_3", "damage_3", "nullify"]
-		# Randomize the selected die face again if the selected die face
-		# is already maxed or there are not enough points to purchase
-		# an upgrade for the face.
-		while max_faces.has(face) || cannot_purchase(face, points):
-			f_i = randi_range(0, current_faces.size() - 1)
-			face = current_faces[f_i]
-		# If the selected face is blank and the die has less than 2
-		# non-blank sides or if the face is just blank, add an ability
-		# to this blank face
-		if current_faces.count("") > 4:
-			while face != "":
+	if is_in_group("player_die"):
+		current_faces = [face_1, face_2, face_3, face_4, face_5, face_6]
+		$die_bg.modulate = Color(0, 1, 1, 1)
+		for face in $die_faces.get_children():
+			face.modulate = Color(0, 1, 1, 1)
+	else:
+		$die_bg.modulate = Color(1, 0, 0, 1)
+		for face in $die_faces.get_children():
+			face.modulate = Color(1, 0, 0, 1)
+		# Randomize the points based on the difficulty level
+		var points : int = randi_range(dc.get("min_points"), dc.get("max_points"))
+		while points != 0:
+			# Get a random index
+			var f_i : int = randi_range(0, current_faces.size() - 1)
+			# Create a variable to reference the face
+			var face : String = current_faces[f_i]
+			# If all faces on the die are maxed out or a face that cannot
+			# be upgraded, the die setup is completed.
+			if faces_maxed():
+				base_faces = current_faces.duplicate()
+				load_faces()
+				is_setup = true
+				return
+			# Reference what the max level faces are
+			var max_faces : Array[String] = ["block_3", "damage_3", "nullify"]
+			# Randomize the selected die face again if the selected die face
+			# is already maxed or there are not enough points to purchase
+			# an upgrade for the face.
+			while max_faces.has(face) || cannot_purchase(face, points):
 				f_i = randi_range(0, current_faces.size() - 1)
 				face = current_faces[f_i]
-			if !current_faces.has("damage_1") || !current_faces.has("damage_2") || !current_faces.has("damage_3"):
-				current_faces[f_i] = "damage_1"
-				points -= gm.start_enemy_die_faces[0].get("cost")
-		elif face == "":
-			var new_face : Dictionary = gm.start_enemy_die_faces.pick_random()
-			while points - new_face.get("cost") < 0:
-				new_face = gm.start_enemy_die_faces.pick_random()
-			current_faces[f_i] = new_face.get("name")
-			points -= new_face.get("cost")
-		else:
-			if face.contains("block"):
-				if face.contains("1"):
-					current_faces[f_i] = "block_2"
-					points -= gm.enemy_face_costs[2].get("cost")
-				elif face.contains("2"):
-					current_faces[f_i] = "block_3"
-					points -= gm.enemy_face_costs[3].get("cost")
-			elif face.contains("damage"):
-				if face.contains("1"):
-					current_faces[f_i] = "damage_2"
-					points -= gm.enemy_face_costs[0].get("cost")
-				elif face.contains("2"):
-					current_faces[f_i] = "damage_3"
-					points -= gm.enemy_face_costs[1].get("cost")
-	#print(current_faces)
-	base_faces = current_faces
+			# If the selected face is blank and the die has less than 2
+			# non-blank sides or if the face is just blank, add an ability
+			# to this blank face
+			if current_faces.count("") > 4:
+				while face != "":
+					f_i = randi_range(0, current_faces.size() - 1)
+					face = current_faces[f_i]
+				if !current_faces.has("damage_1") || !current_faces.has("damage_2") || !current_faces.has("damage_3"):
+					current_faces[f_i] = "damage_1"
+					points -= gm.start_enemy_die_faces[0].get("cost")
+			elif face == "":
+				var new_face : Dictionary = gm.start_enemy_die_faces.pick_random()
+				while points - new_face.get("cost") < 0:
+					new_face = gm.start_enemy_die_faces.pick_random()
+				current_faces[f_i] = new_face.get("name")
+				points -= new_face.get("cost")
+			else:
+				if face.contains("block"):
+					if face.contains("1"):
+						current_faces[f_i] = "block_2"
+						points -= gm.enemy_face_costs[2].get("cost")
+					elif face.contains("2"):
+						current_faces[f_i] = "block_3"
+						points -= gm.enemy_face_costs[3].get("cost")
+				elif face.contains("damage"):
+					if face.contains("1"):
+						current_faces[f_i] = "damage_2"
+						points -= gm.enemy_face_costs[0].get("cost")
+					elif face.contains("2"):
+						current_faces[f_i] = "damage_3"
+						points -= gm.enemy_face_costs[1].get("cost")
+	base_faces = current_faces.duplicate()
 	load_faces()
 	is_setup = true
-	roll()
 
 func faces_maxed() -> bool:
 	var max_faces : Array[String] = ["block_3", "damage_3", "nullify"]

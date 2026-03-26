@@ -14,6 +14,12 @@ size = Vector2(66, 66)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_muu1c"]
 size = Vector2(261, 42)
 
+[sub_resource type="Gradient" id="Gradient_muu1c"]
+colors = PackedColorArray(1, 1, 1, 0.85, 1, 1, 1, 0.85)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_q3244"]
+gradient = SubResource("Gradient_muu1c")
+
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_fl3nv"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gxo0y"]
@@ -52,6 +58,13 @@ position = Vector2(0, -58)
 [node name="collider" type="CollisionShape2D" parent="selection_area" unique_id=1157349397]
 position = Vector2(1.5, 0)
 shape = SubResource("RectangleShape2D_muu1c")
+
+[node name="faces_bg" type="Sprite2D" parent="." unique_id=939354063]
+visible = false
+z_index = 1
+position = Vector2(1.4999981, -58)
+scale = Vector2(1.0195313, 42)
+texture = SubResource("GradientTexture1D_q3244")
 
 [node name="die_faces" type="Node2D" parent="." unique_id=1870078434]
 visible = false

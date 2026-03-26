@@ -4,11 +4,11 @@ var dev_mode : bool = false :
 	set(value):
 		dev_mode = value
 		if dev_mode:
-			ui.get_node("reroll").show()
-			ui.get_node("reset_game").show()
+			ui.get_node("dev_tools").show()
 		else:
-			ui.get_node("reroll").hide()
-			ui.get_node("reset_game").hide()
+			ui.get_node("dev_tools").hide()
+var immune : bool = false
+
 @onready var dice_pool : Node2D = get_tree().current_scene.get_node("dice_pool")
 @onready var ui : Control = get_tree().current_scene.get_node("canvas/ui")
 @export var targetting_line : PackedScene
@@ -69,9 +69,10 @@ func _on_ready_pressed() -> void:
 			var die_face : String = die.current_faces[die.face_i]
 			if !die.inactive:
 				if die.is_in_group("enemy_die") && die.face_is("damage"):
-					# Deal damage to player
-					current_hp -= int(die_face.get_slice("_", 1))
-				elif !die.targets.is_empty():
+					if !immune:
+						# Deal damage to player
+						current_hp -= int(die_face.get_slice("_", 1))
+				elif !die.targets.is_empty() && die.is_in_group("player_die"):
 					if die.face_is("damage"):
 						for target in die.targets:
 							target.damage(int(die_face.get_slice("_", 1)))
@@ -83,7 +84,7 @@ func _on_ready_pressed() -> void:
 						current_hp += 2
 					elif die_face.ends_with("3"):
 						current_hp += 3
-	dice_pool._on_reroll_pressed()
+	dice_pool.roll_all()
 
 func new_targetting_die(die : Area2D):
 	targetting_die = die
@@ -121,8 +122,9 @@ func create_combat(dc_index : int):
 		if enemy_dice.size() != 2 || action == 0 || enemy_dice_maxed(max_die_dc):
 			var new_enemy : Area2D = die_scn.instantiate()
 			new_enemy.add_to_group("enemy_die")
+			new_enemy.connect("die", Callable(self, "enemy_death"))
 			dice_pool.get_child(0).add_child(new_enemy)
-			new_enemy.position = Vector2(928.0, (113.0 + (90 * new_enemy.get_index())))
+			new_enemy.position = Vector2(928.0, (113.0 + (70 * new_enemy.get_index())))
 			enemy_dice.append(new_enemy)
 			new_enemy.dc = combat_dcs[0]
 			new_enemy.gm = self
@@ -133,11 +135,12 @@ func create_combat(dc_index : int):
 				die = dice_pool.get_child(0).get_children().pick_random()
 			die.dc = combat_dcs[combat_dcs.find(die.dc) + 1]
 			combat_points -= 1
-	for die in enemy_dice:
-		die.setup()
+	for pool in dice_pool.get_children():
+		for die in pool.get_children():
+			die.setup()
+	dice_pool.roll_all()
 
 func enemy_death(die : Area2D):
-	die.queue_free()
 	enemy_dice.remove_at(enemy_dice.find(die))
 	if enemy_dice.is_empty():
 		create_combat(0)
@@ -148,8 +151,17 @@ func enemy_dice_maxed(max_dc : Dictionary):
 			return false
 	return true
 
-func _on_reset_game_pressed() -> void:
+func die():
+	ui.get_node("death").show()
+
+func _on_restart_pressed() -> void:
 	get_tree().reload_current_scene()
 
-func die():
-	print("YOU DIED")
+func _on_immune_toggled(toggled_on: bool) -> void:
+	immune = toggled_on
+
+func _on_help_pressed() -> void:
+	ui.get_node("help_menu").show()
+
+func _on_close_pressed() -> void:
+	ui.get_node("help_menu").hide()
