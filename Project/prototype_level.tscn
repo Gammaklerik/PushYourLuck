@@ -1,0 +1,335 @@
+[gd_scene format=3 uid="uid://dpeaoeqmddxc6"]
+
+[ext_resource type="Script" uid="uid://dq6pathy5ievp" path="res://dice_pool.gd" id="1_8sc3k"]
+[ext_resource type="Script" uid="uid://57u3ie5sqphc" path="res://game_manager.gd" id="1_yjhn6"]
+[ext_resource type="PackedScene" uid="uid://2xprqtmbx0kd" path="res://die.tscn" id="2_8sc3k"]
+[ext_resource type="PackedScene" uid="uid://cgcmv1rtys5i0" path="res://targetting_line.tscn" id="2_qkken"]
+[ext_resource type="Texture2D" uid="uid://cb2w826807wf4" path="res://art/dieFaces/damage_1.png" id="4_cow61"]
+[ext_resource type="Texture2D" uid="uid://ccnk8d3q2hu8q" path="res://art/dieFaces/damage_2.png" id="5_d54vc"]
+[ext_resource type="Texture2D" uid="uid://dhukgo7anlbmt" path="res://art/dieFaces/damage_3.png" id="6_1pu2k"]
+[ext_resource type="Texture2D" uid="uid://iuybpjjif6qm" path="res://art/dieFaces/nullify.png" id="7_dfbc3"]
+[ext_resource type="Texture2D" uid="uid://dhc35vqfd1hb3" path="res://art/dieFaces/duplicate.png" id="8_n2kqs"]
+[ext_resource type="Texture2D" uid="uid://nm70y26bhtt3" path="res://art/dieFaces/reroll.png" id="9_igk5b"]
+[ext_resource type="Texture2D" uid="uid://bmtf4rwwjmh0o" path="res://art/dieFaces/ursa_major.png" id="10_h2m03"]
+[ext_resource type="Texture2D" uid="uid://hpbme528o4ad" path="res://art/dieFaces/heal_1.png" id="11_ksfxn"]
+[ext_resource type="Texture2D" uid="uid://ceq6vm3subehs" path="res://art/dieFaces/heal_2.png" id="12_d13ig"]
+[ext_resource type="Texture2D" uid="uid://chxgeslg74u38" path="res://art/dieFaces/heal_3.png" id="13_uloa3"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_yjhn6"]
+font_size = 60
+
+[sub_resource type="LabelSettings" id="LabelSettings_qkken"]
+font_size = 35
+font_color = Color(0.638974, 0, 0.0027083172, 1)
+outline_size = 5
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_caqob"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_tfh6n"]
+font_size = 25
+font_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_w86y6"]
+font_size = 30
+
+[sub_resource type="LabelSettings" id="LabelSettings_i17kl"]
+font_size = 50
+outline_size = 25
+outline_color = Color(0, 0, 0, 1)
+
+[node name="prototype_level" type="Node2D" unique_id=1969773044]
+
+[node name="game_manager" type="Node" parent="." unique_id=349319180]
+script = ExtResource("1_yjhn6")
+targetting_line = ExtResource("2_qkken")
+die_scn = ExtResource("2_8sc3k")
+
+[node name="canvas" type="CanvasLayer" parent="." unique_id=2011830559]
+
+[node name="ui" type="Control" parent="canvas" unique_id=612373676]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1151.0
+offset_bottom = 648.0
+mouse_filter = 2
+
+[node name="dev_tools" type="Control" parent="canvas/ui" unique_id=507426505]
+visible = false
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="reroll" type="Button" parent="canvas/ui/dev_tools" unique_id=2055222769]
+layout_mode = 0
+offset_right = 54.0
+offset_bottom = 31.0
+text = "Reroll"
+metadata/_edit_use_anchors_ = true
+
+[node name="reset_game" type="Button" parent="canvas/ui/dev_tools" unique_id=1105751530]
+layout_mode = 0
+offset_top = 38.0
+offset_right = 98.0
+offset_bottom = 69.0
+text = "New Round"
+
+[node name="immune" type="Button" parent="canvas/ui/dev_tools" unique_id=739003275]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 78.0
+offset_right = 139.0
+offset_bottom = 109.0
+toggle_mode = true
+text = "Toggle Immunity"
+
+[node name="ready" type="Button" parent="canvas/ui" unique_id=1086966945]
+layout_mode = 0
+offset_left = 484.0
+offset_top = 260.0
+offset_right = 540.0
+offset_bottom = 291.0
+text = "Ready"
+
+[node name="hp" type="Label" parent="canvas/ui" unique_id=1853663332]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -129.5
+offset_top = -83.0
+offset_right = 129.5
+grow_horizontal = 2
+grow_vertical = 0
+text = "99/99 HP"
+label_settings = SubResource("LabelSettings_yjhn6")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="invalid_target" type="Label" parent="canvas/ui" unique_id=1536942186]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "INVALID TARGET"
+label_settings = SubResource("LabelSettings_qkken")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="help" type="Button" parent="canvas/ui" unique_id=765370076]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -52.0
+offset_bottom = 52.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 30
+text = "?"
+
+[node name="help_menu" type="Panel" parent="canvas/ui" unique_id=1276907632]
+visible = false
+modulate = Color(1, 1, 1, 0.85)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 131.0
+offset_top = 91.0
+offset_right = -147.0
+offset_bottom = -115.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_caqob")
+
+[node name="title" type="Label" parent="canvas/ui/help_menu" unique_id=182654838]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -73.5
+offset_right = 73.5
+offset_bottom = 35.0
+grow_horizontal = 2
+text = "How To Play"
+label_settings = SubResource("LabelSettings_tfh6n")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="goal" type="RichTextLabel" parent="canvas/ui/help_menu" unique_id=1635878386]
+layout_mode = 0
+offset_left = 34.0
+offset_top = 62.0
+offset_right = 339.0
+offset_bottom = 413.0
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+text = "The goal is to defeat all enemy dice to move on to the next round. Complete as many rounds as possible.
+
+To kill an enemy damage must be dealt, each number of damage removes 1 face from an enemy die, once all faces are removed the enemy dies. Damage removes the current face, if it is not blank first, then removes random faces."
+
+[node name="legend" type="RichTextLabel" parent="canvas/ui/help_menu" unique_id=1931687404]
+layout_mode = 0
+offset_left = 349.0
+offset_top = 64.0
+offset_right = 868.0
+offset_bottom = 384.0
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+text = "Legend:
+				- Deals 1, 2, and 3 damage
+				- Blocks 1, 2, and 3 instances of damage (Enemy block must be selected first with damage)
+			- Disables the effect of the target die.
+			- Duplicates the selected face.
+			- Rerolls the selected die, this action can be undone but rerolling will not produce a different result
+			- Allows you to pick the face of one of your dice.
+				- Heals 1, 2, and 3 HP."
+
+[node name="Damage1" type="Sprite2D" parent="canvas/ui/help_menu" unique_id=1592558214]
+position = Vector2(343, 101)
+scale = Vector2(0.051757816, 0.051757816)
+texture = ExtResource("4_cow61")
+
+[node name="Damage2" type="Sprite2D" parent="canvas/ui/help_menu" unique_id=1921148930]
+position = Vector2(366, 100)
+scale = Vector2(0.05566399, 0.05566399)
+texture = ExtResource("5_d54vc")
+
+[node name="Damage3" type="Sprite2D" parent="canvas/ui/help_menu" unique_id=53262408]
+position = Vector2(392, 100)
+scale = Vector2(0.052734375, 0.052734375)
+texture = ExtResource("6_1pu2k")
+
+[node name="Nullify" type="Sprite2D" parent="canvas/ui/help_menu" unique_id=1544154530]
+position = Vector2(381.00003, 167)
+scale = Vector2(0.05664062, 0.05664062)
+texture = ExtResource("7_dfbc3")
+
+[node name="Duplicate" type="Sprite2D" parent="canvas/ui/help_menu" unique_id=1302839605]
+position = Vector2(381, 191.00002)
+scale = Vector2(0.05224605, 0.05224605)
+texture = ExtResource("8_n2kqs")
+
+[node name="Reroll" type="Sprite2D" parent="canvas/ui/help_menu" unique_id=1398053304]
+position = Vector2(384, 215)
+scale = Vector2(0.06347655, 0.06347655)
+texture = ExtResource("9_igk5b")
+
+[node name="UrsaMajor" type="Sprite2D" parent="canvas/ui/help_menu" unique_id=1263902112]
+position = Vector2(383, 260)
+scale = Vector2(0.06640625, 0.06640625)
+texture = ExtResource("10_h2m03")
+
+[node name="Heal1" type="Sprite2D" parent="canvas/ui/help_menu" unique_id=1901254721]
+position = Vector2(347.00003, 284.00003)
+scale = Vector2(0.046874955, 0.046874955)
+texture = ExtResource("11_ksfxn")
+
+[node name="Heal2" type="Sprite2D" parent="canvas/ui/help_menu" unique_id=1987744215]
+position = Vector2(375, 284)
+scale = Vector2(0.05468741, 0.05468741)
+texture = ExtResource("12_d13ig")
+
+[node name="Heal3" type="Sprite2D" parent="canvas/ui/help_menu" unique_id=1195757829]
+position = Vector2(403.00006, 284)
+scale = Vector2(0.056152377, 0.056152377)
+texture = ExtResource("13_uloa3")
+
+[node name="close" type="Button" parent="canvas/ui/help_menu" unique_id=1900291890]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -38.0
+offset_bottom = 43.0
+grow_horizontal = 0
+text = "X"
+
+[node name="round_count" type="Label" parent="canvas/ui" unique_id=1876585393]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.5
+offset_right = 50.5
+offset_bottom = 23.0
+grow_horizontal = 2
+text = "Round 99999"
+label_settings = SubResource("LabelSettings_w86y6")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="death" type="Panel" parent="canvas/ui" unique_id=1574904654]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="death_label" type="Label" parent="canvas/ui/death" unique_id=1139482116]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 147.0
+offset_bottom = 239.0
+grow_horizontal = 2
+text = "YOU DIED"
+label_settings = SubResource("LabelSettings_i17kl")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="restart" type="Button" parent="canvas/ui/death" unique_id=1529632505]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.5
+offset_top = -62.5
+offset_right = 32.5
+offset_bottom = -31.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Restart"
+
+[node name="dice_pool" type="Node2D" parent="." unique_id=2013648158]
+script = ExtResource("1_8sc3k")
+
+[node name="enemy_dice" type="Node2D" parent="dice_pool" unique_id=1690577682]
+
+[node name="player_dice" type="Node2D" parent="dice_pool" unique_id=828763913]
+
+[node name="die_01" parent="dice_pool/player_dice" unique_id=157864649 groups=["player_die"] instance=ExtResource("2_8sc3k")]
+position = Vector2(227, 280)
+face_1 = "damage_1"
+face_2 = "damage_2"
+face_5 = "damage_1"
+face_6 = "duplicate"
+
+[node name="die_02" parent="dice_pool/player_dice" unique_id=489334620 groups=["player_die"] instance=ExtResource("2_8sc3k")]
+position = Vector2(318, 202)
+face_1 = "nullify"
+face_3 = "block_2"
+face_5 = "heal_2"
+face_6 = "damage_1"
+
+[node name="die_03" parent="dice_pool/player_dice" unique_id=746162769 groups=["player_die"] instance=ExtResource("2_8sc3k")]
+position = Vector2(313, 379)
+face_1 = "reroll"
+face_3 = "damage_1"
+face_5 = "ursa_major"
+
+[connection signal="pressed" from="canvas/ui/dev_tools/reroll" to="dice_pool" method="roll_all"]
+[connection signal="pressed" from="canvas/ui/dev_tools/reset_game" to="game_manager" method="_on_restart_pressed"]
+[connection signal="toggled" from="canvas/ui/dev_tools/immune" to="game_manager" method="_on_immune_toggled"]
+[connection signal="pressed" from="canvas/ui/ready" to="game_manager" method="_on_ready_pressed"]
+[connection signal="visibility_changed" from="canvas/ui/invalid_target" to="game_manager" method="_on_invalid_target_visibility_changed"]
+[connection signal="pressed" from="canvas/ui/help" to="game_manager" method="_on_help_pressed"]
+[connection signal="pressed" from="canvas/ui/help_menu/close" to="game_manager" method="_on_close_pressed"]
+[connection signal="pressed" from="canvas/ui/death/restart" to="game_manager" method="_on_restart_pressed"]

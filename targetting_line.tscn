@@ -1,7 +1,0 @@
-[gd_scene format=3 uid="uid://cgcmv1rtys5i0"]
-
-[node name="targetting_line" type="Line2D" unique_id=1659468414]
-z_index = -1
-points = PackedVector2Array(0, -1, 43, -1)
-width = 8.0
-default_color = Color(0, 0.72414386, 0.27821898, 1)
