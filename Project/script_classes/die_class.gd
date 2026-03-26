@@ -92,6 +92,10 @@ func _process(delta: float) -> void:
 				target.inactive = false
 				target.targetters.remove_at(target.targetters.find(self))
 			targets.clear()
+			for line in target_lines:
+				target_lines.remove_at(target_lines.find(line))
+				line.queue_free()
+			target_lines.clear()
 			set_ability_count()
 		
 		# If the player isn't already targetting with a die, 
@@ -143,6 +147,7 @@ func _process(delta: float) -> void:
 						targetter.targets.remove_at(targetter.targets.find(self))
 						targetter.ability_count += 1
 		elif Input.is_action_just_pressed("deselect") && interactable:
+			print("DESELECT")
 			for targetter in targetters:
 				if targetter.targets.find(self) != -1:
 					targetter.target_lines[targetter.targets.find(self)].queue_free()
@@ -165,6 +170,11 @@ func _process(delta: float) -> void:
 							targetter.ability_count += 1
 						if ability_count < max_ability_count:
 							ability_count += 1
+		elif Input.is_action_just_pressed("dev_inspect") && interactable && gm.dev_mode:
+			print("FACES: " + str(current_faces))
+			print("CURRENT FACE: " + str(current_faces[face_i]))
+			print("FACE TEXTURES: " + str(face_textures))
+			print("DIE FACE TEXTURE: " + str($die_face.texture))
 
 func load_faces() -> void:
 	# Load die face textures

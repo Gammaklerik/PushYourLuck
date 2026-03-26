@@ -26,6 +26,10 @@ var round : int = 0 :
 var max_hp : int = 12
 var current_hp : int :
 	set(value):
+		if current_hp > value:
+			print("-" + str(current_hp - value))
+		elif current_hp < value:
+			print("+" + str(value - current_hp))
 		current_hp = clamp(value, 0, max_hp)
 		ui.get_node("hp").text = str(current_hp) + "/" + str(max_hp) + " HP"
 		if current_hp == 0:
