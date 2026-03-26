@@ -29,8 +29,8 @@ func roll_all() -> void:
 					random_player_die = get_child(1).get_children().pick_random()
 				random_player_die.inactive = true
 				die.targets.append(random_player_die)
-				random_player_die.targetters.append(self)
+				random_player_die.targetters.append(die)
 			else:
 				random_player_die.inactive = true
 				die.targets.append(random_player_die)
-				random_player_die.targetters.append(self)
+				random_player_die.targetters.append(die)
