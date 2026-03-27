@@ -1,4 +1,4 @@
-extends Area2D
+extends TextureRect
 class_name Dice
 
 @onready var gm : Node = get_tree().current_scene.get_node("game_manager")
@@ -31,9 +31,9 @@ var ability_count : int = 1 :
 	set(value):
 		ability_count = value
 		if ability_count == 0:
-			$die_bg.modulate.a = 0.75
+			self_modulate.a = 0.75
 		else:
-			$die_bg.modulate.a = 1.0
+			self_modulate.a = 1.0
 var inactive : bool = false :
 	set(value):
 		inactive = value
@@ -48,13 +48,9 @@ var selecting_face : bool = false :
 		selecting_face = value
 		if selecting_face:
 			$die_faces.show()
-			$faces_bg.show()
-			$selection_area.show()
 		else:
 			$die_faces.hide()
-			$faces_bg.hide()
-			$selection_area.hide()
-var hovered_face : Area2D
+var hovered_face
 var duplicating : bool = false:
 	set(value):
 		duplicating = value
@@ -69,8 +65,8 @@ var duplicating : bool = false:
 			clear_targets(self, true)
 			set_ability_count()
 
-var targets : Array[Area2D]
-var targetters : Array[Area2D]
+var targets : Array[Dice]
+var targetters : Array[Dice]
 
 func _process(delta: float) -> void:
 	if is_setup:
@@ -237,7 +233,7 @@ func damage(total_damage: int) -> void:
 	# Reload the faces
 	load_faces()
 
-func is_valid_target(die : Area2D) -> bool:
+func is_valid_target(die : Dice) -> bool:
 	# Check if this die's face is a valid target for the targetting die
 	if die.face_is("block") && self.is_in_group("enemy_die") && self.face_is("damage"):
 		return true
@@ -257,7 +253,7 @@ func is_valid_target(die : Area2D) -> bool:
 		gm.ui.get_node("invalid_target").show()
 		return false
 
-func clear_targets(targetter : Area2D, set_inactive_false : bool):
+func clear_targets(targetter : Dice, set_inactive_false : bool):
 	for target in targets:
 		if set_inactive_false:
 			target.inactive = false
@@ -268,7 +264,6 @@ func _on_mouse_entered() -> void:
 	# Show the die's faces above the die if there is no Ursa Major target
 	if !selecting_face:
 		$die_faces.show()
-		$faces_bg.show()
 	# Set the die to interactable
 	if !interactable:
 		interactable = true
@@ -279,19 +274,18 @@ func _on_mouse_exited() -> void:
 	# interactable if there is no Ursa Major target
 	if !selecting_face:
 		$die_faces.hide()
-		$faces_bg.hide()
 	if interactable:
 		interactable = false
 
 func set_active_face(i : int) -> void:
 	# Set the die faces above the die set the faces that are not the
 	# face up face to be halfway transparent
-	for face in $die_faces.get_children():
+	for face in $die_faces/container.get_children():
 		face.get_node("symbol").texture = face_textures[face.get_index()]
 		if face.get_index() != i:
-			face.modulate.a = 0.5
+			face.self_modulate.a = 0.5
 		else:
-			face.modulate.a = 1.0
+			face.self_modulate.a = 1.0
 
 func face_is(face : String) -> bool:
 	if current_faces[face_i].contains(face):
@@ -300,12 +294,12 @@ func face_is(face : String) -> bool:
 		return false
 
 func _on_face_mouse_entered(index : int) -> void:
-	for face in $die_faces.get_children():
-		if face == $die_faces.get_child(index):
-			face.modulate.a = 1.0
+	for face in $die_faces/container.get_children():
+		if face == $die_faces/container.get_child(index):
+			face.self_modulate.a = 1.0
 			hovered_face = face
 		else:
-			face.modulate.a = 0.5
+			face.self_modulate.a = 0.5
 
 func _on_selection_area_mouse_exited() -> void:
 	set_active_face(face_i)
@@ -315,16 +309,18 @@ func _on_remove_button_pressed() -> void:
 	duplicating = false
 
 func setup() -> void:
-	if is_in_group("player_die"):
+	if !is_in_group("enemy_die"):
+		add_to_group("player_die")
 		current_faces = [face_1, face_2, face_3, face_4, face_5, face_6]
-		$die_bg.modulate = Color(0, 1, 1, 1)
-		for face in $die_faces.get_children():
-			face.modulate = Color(0, 1, 1, 1)
+		self_modulate = Color(0, 1, 1, 1)
+		for face in $die_faces/container.get_children():
+			face.self_modulate = Color(0, 1, 1, 1)
 	else:
-		$die_bg.modulate = Color(1, 0, 0, 1)
-		for face in $die_faces.get_children():
-			face.modulate = Color(1, 0, 0, 1)
+		self_modulate = Color(1, 0, 0, 1)
+		for face in $die_faces/container.get_children():
+			face.self_modulate = Color(1, 0, 0, 1)
 		# Randomize the points based on the difficulty level
+		print(get_groups())
 		var points : int = randi_range(dc.get("min_points"), dc.get("max_points"))
 		while points != 0:
 			# Get a random index

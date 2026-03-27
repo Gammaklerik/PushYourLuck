@@ -166,7 +166,6 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="duplication" type="Panel" parent="." unique_id=884863404]
-visible = false
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0

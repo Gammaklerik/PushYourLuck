@@ -1,0 +1,222 @@
+[gd_scene format=3 uid="uid://b1lxsry7stcjo"]
+
+[ext_resource type="Texture2D" uid="uid://cbvcglvcuini5" path="res://art/blank_die.png" id="1_ya8ws"]
+[ext_resource type="Script" uid="uid://ckm18b1fxd3n" path="res://script_classes/die_class.gd" id="2_irgc1"]
+[ext_resource type="Texture2D" uid="uid://01s6revuw8bw" path="res://art/inactive_icon.png" id="3_pg1s8"]
+[ext_resource type="Texture2D" uid="uid://b74lymsv2cfgo" path="res://art/targetting_border.png" id="4_lmrdk"]
+[ext_resource type="Texture2D" uid="uid://dhc35vqfd1hb3" path="res://art/dieFaces/duplicate.png" id="5_yeu2p"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_4ryx6"]
+
+[node name="die_01" type="TextureRect" unique_id=1630675686 groups=["die"]]
+offset_left = -42.0
+offset_top = -42.0
+offset_right = 41.0
+offset_bottom = 41.0
+texture = ExtResource("1_ya8ws")
+expand_mode = 1
+stretch_mode = 4
+script = ExtResource("2_irgc1")
+
+[node name="die_face" type="TextureRect" parent="." unique_id=1975997867]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 4
+
+[node name="inactive" type="TextureRect" parent="." unique_id=493767179]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_pg1s8")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="targetting" type="TextureRect" parent="." unique_id=726586762]
+visible = false
+material = SubResource("CanvasItemMaterial_4ryx6")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_lmrdk")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="die_faces" type="Panel" parent="." unique_id=601568004]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -70.5
+offset_top = -25.0
+offset_right = 72.611115
+offset_bottom = -2.0
+grow_horizontal = 2
+
+[node name="container" type="HBoxContainer" parent="die_faces" unique_id=1499130469]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 1.0
+offset_right = -0.1111145
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="face_01" type="TextureRect" parent="die_faces/container" unique_id=615743641]
+layout_mode = 2
+texture = ExtResource("1_ya8ws")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="symbol" type="TextureRect" parent="die_faces/container/face_01" unique_id=586003460]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 4
+
+[node name="face_02" type="TextureRect" parent="die_faces/container" unique_id=118916120]
+layout_mode = 2
+texture = ExtResource("1_ya8ws")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="symbol" type="TextureRect" parent="die_faces/container/face_02" unique_id=878396923]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 4
+
+[node name="face_03" type="TextureRect" parent="die_faces/container" unique_id=893748108]
+layout_mode = 2
+texture = ExtResource("1_ya8ws")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="symbol" type="TextureRect" parent="die_faces/container/face_03" unique_id=742002883]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 4
+
+[node name="face_04" type="TextureRect" parent="die_faces/container" unique_id=1520952350]
+layout_mode = 2
+texture = ExtResource("1_ya8ws")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="symbol" type="TextureRect" parent="die_faces/container/face_04" unique_id=1742755884]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 4
+
+[node name="face_05" type="TextureRect" parent="die_faces/container" unique_id=1267703109]
+layout_mode = 2
+texture = ExtResource("1_ya8ws")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="symbol" type="TextureRect" parent="die_faces/container/face_05" unique_id=320865073]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 4
+
+[node name="face_06" type="TextureRect" parent="die_faces/container" unique_id=186228579]
+layout_mode = 2
+texture = ExtResource("1_ya8ws")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="symbol" type="TextureRect" parent="die_faces/container/face_06" unique_id=1257722983]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 4
+
+[node name="duplication" type="Panel" parent="." unique_id=1888292299]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -17.0
+offset_top = 1.0
+offset_right = 17.0
+offset_bottom = 19.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="texture" type="TextureRect" parent="duplication" unique_id=1840235397]
+layout_mode = 0
+offset_right = 26.0
+offset_bottom = 18.0
+texture = ExtResource("5_yeu2p")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="remove_button" type="Button" parent="duplication" unique_id=1219990477]
+layout_mode = 0
+offset_left = 19.0
+offset_top = 1.0
+offset_right = 33.0
+offset_bottom = 16.0
+theme_override_font_sizes/font_size = 4
+text = "X"
+
+[node name="anim_timer" type="Timer" parent="." unique_id=1536701782]
+wait_time = 3.0
+one_shot = true
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
+[connection signal="mouse_exited" from="die_faces" to="." method="_on_selection_area_mouse_exited"]
+[connection signal="mouse_entered" from="die_faces/container/face_01" to="." method="_on_face_mouse_entered" binds= [0]]
+[connection signal="mouse_entered" from="die_faces/container/face_02" to="." method="_on_face_mouse_entered" binds= [1]]
+[connection signal="mouse_entered" from="die_faces/container/face_03" to="." method="_on_face_mouse_entered" binds= [2]]
+[connection signal="mouse_entered" from="die_faces/container/face_04" to="." method="_on_face_mouse_entered" binds= [3]]
+[connection signal="mouse_entered" from="die_faces/container/face_05" to="." method="_on_face_mouse_entered" binds= [4]]
+[connection signal="mouse_entered" from="die_faces/container/face_06" to="." method="_on_face_mouse_entered" binds= [5]]
+[connection signal="pressed" from="duplication/remove_button" to="." method="_on_remove_button_pressed"]

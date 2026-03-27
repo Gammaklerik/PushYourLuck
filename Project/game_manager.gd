@@ -9,11 +9,11 @@ var dev_mode : bool = false :
 			ui.get_node("dev_tools").hide()
 var immune : bool = false
 
-@onready var dice_pool : Node2D = get_tree().current_scene.get_node("dice_pool")
-@onready var ui : Control = get_tree().current_scene.get_node("canvas/ui")
+@onready var dice_pool : Control = $canvas/ui/dice_pool
+@onready var ui : Control = $canvas/ui
 @export var targetting_line : PackedScene
 @export var die_scn : PackedScene
-var enemy_dice : Array[Area2D]
+var enemy_dice : Array[Dice]
 var die_dcs : Array[Dictionary] = [{"difficulty" : "Very Easy", "min_points" : 2, "max_points" : 6}, {"difficulty" : "Easy", "min_points" : 7, "max_points" : 10}, {"difficulty" : "Medium", "min_points" : 11, "max_points" : 16}, {"difficulty" : "Hard", "min_points" : 17, "max_points" : 21}, {"difficulty" : "Very Hard", "min_points" : 22, "max_points" : 30}]
 var combat_dcs : Array[Dictionary] = [{"difficulty" : "Very Easy", "min_points" : 2, "max_points" : 4}, {"difficulty" : "Easy", "min_points" : 5, "max_points" : 7}, {"difficulty" : "Medium", "min_points" : 8, "max_points" : 12}, {"difficulty" : "Hard", "min_points" : 13, "max_points" : 18}, {"difficulty" : "Very Hard", "min_points" : 19, "max_points" : 25}, {"difficulty" : "Impossible", "min_points" : 25}]
 var start_enemy_die_faces : Array[Dictionary] = [{"name" : "damage_1", "cost" : 1}, {"name" : "block_1", "cost" : 2}, {"name" : "nullify", "cost" : 3}]
@@ -50,15 +50,16 @@ var targetting : bool = false :
 			targetting_die.target_lines.append(new_line)
 			targetting_die.current_target_line = targetting_die.target_lines.find(new_line)
 			targetting_die.add_child(new_line)
+			new_line.set_point_position(0, new_line.to_local(Vector2(targetting_die.global_position.x + 20, targetting_die.global_position.y + 20)))
 		else:
 			targetting_die.get_node("targetting").hide()
 			var line : Line2D = targetting_die.target_lines[targetting_die.current_target_line]
 			if targetting_die.target_lines.size() == targetting_die.targets.size():
-				line.set_point_position(1, targetting_die.to_local(targetting_die.targets[targetting_die.current_target_line].global_position))
+				line.set_point_position(1, line.to_local(Vector2(targetting_die.targets[targetting_die.current_target_line].global_position.x + 20, targetting_die.targets[targetting_die.current_target_line].global_position.y + 20)))
 			else:
 				targetting_die.target_lines.remove_at(targetting_die.target_lines.find(line))
 				line.free()
-var targetting_die : Area2D
+var targetting_die : Dice
 
 var anim_speed : float = 1.0
 
@@ -101,7 +102,7 @@ func _on_ready_pressed() -> void:
 	dice_pool.roll_all()
 	turns += 1
 
-func new_targetting_die(die : Area2D):
+func new_targetting_die(die : Dice):
 	targetting_die = die
 	targetting = true
 
@@ -139,7 +140,7 @@ func create_combat(dc_index : int):
 	while combat_points != 0:
 		var action : int = randi_range(0, 1)
 		if enemy_dice.size() != 2 || action == 0 || enemy_dice_maxed(max_die_dc):
-			var new_enemy : Area2D = die_scn.instantiate()
+			var new_enemy : Dice = die_scn.instantiate()
 			new_enemy.add_to_group("enemy_die")
 			new_enemy.connect("die", Callable(self, "enemy_death"))
 			dice_pool.get_child(0).add_child(new_enemy)
@@ -149,7 +150,7 @@ func create_combat(dc_index : int):
 			new_enemy.gm = self
 			combat_points -= 1
 		else:
-			var die : Area2D = dice_pool.get_child(0).get_children().pick_random()
+			var die : Dice = dice_pool.get_child(0).get_children().pick_random()
 			while die.dc == max_die_dc:
 				die = dice_pool.get_child(0).get_children().pick_random()
 			die.dc = combat_dcs[combat_dcs.find(die.dc) + 1]
@@ -159,7 +160,7 @@ func create_combat(dc_index : int):
 			die.setup()
 	dice_pool.roll_all()
 
-func enemy_death(die : Area2D):
+func enemy_death(die : Dice):
 	enemy_dice.remove_at(enemy_dice.find(die))
 	if enemy_dice.is_empty():
 		create_combat(0)

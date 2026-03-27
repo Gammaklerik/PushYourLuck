@@ -1,4 +1,4 @@
-extends Node2D
+extends Control
 
 func roll_all() -> void:
 	for pool in get_children():
@@ -19,7 +19,7 @@ func roll_all() -> void:
 			die.roll()
 	for die in get_child(0).get_children():
 		if die.is_in_group("enemy_die") && die.face_is("nullify"):
-			var random_player_die : Area2D = get_child(1).get_children().pick_random()
+			var random_player_die : Dice = get_child(1).get_children().pick_random()
 			var all_blank : bool = true
 			for d in get_child(1).get_children():
 				if d.current_faces[d.face_i] != "":
