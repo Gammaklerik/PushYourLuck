@@ -60,18 +60,13 @@ var duplicating : bool = false:
 		duplicating = value
 		if duplicating:
 			$duplication.show()
-			for target in targets:
-				target.targetters.remove_at(target.targetters.find(self))
-			targets.clear()
+			clear_targets(self, false)
 			set_ability_count()
 		else:
 			$duplication.hide()
 			current_faces[face_i] = base_faces.duplicate()[face_i]
 			$die_face.texture = face_textures[face_i]
-			for target in targets:
-				target.inactive = false
-				target.targetters.remove_at(target.targetters.find(self))
-			targets.clear()
+			clear_targets(self, true)
 			set_ability_count()
 
 var targets : Array[Area2D]
@@ -88,10 +83,7 @@ func _process(delta: float) -> void:
 		if selecting_face && Input.is_action_just_pressed("interact") && hovered_face != null:
 			face_i = hovered_face.get_index()
 			selecting_face = false
-			for target in targets:
-				target.inactive = false
-				target.targetters.remove_at(target.targetters.find(self))
-			targets.clear()
+			clear_targets(self, true)
 			for line in target_lines:
 				target_lines.remove_at(target_lines.find(line))
 				line.queue_free()
@@ -118,13 +110,10 @@ func _process(delta: float) -> void:
 				self.ability_count -= 1
 			elif gm.targetting_die.face_is("reroll"):
 				if prev_face_i != -1:
-					for target in targets:
-						target.inactive = false
-						target.targetters.remove_at(target.targetters.find(self))
-					targets.clear()
+					clear_targets(self, true)
 					face_i = prev_face_i
 					set_ability_count()
-					set_active_face()
+					set_active_face(face_i)
 				else:
 					self.roll()
 			elif gm.targetting_die.face_is("ursa_major"):
@@ -162,7 +151,7 @@ func _process(delta: float) -> void:
 						targets.clear()
 						face_i = prev_face_i
 						set_ability_count()
-						set_active_face()
+						set_active_face(face_i)
 					else:
 						inactive = false
 						targetter.inactive = false
@@ -193,8 +182,21 @@ func roll() -> void:
 		target.inactive = false
 		target.targetters.remove_at(target.targetters.find(self))
 	targets.clear()
+	roll_anim(gm.anim_speed)
+
+func roll_anim(animation_speed : float):
+	$anim_timer.wait_time = 2.0 / animation_speed
+	$anim_timer.start()
+	var i : int = 0
+	while !$anim_timer.is_stopped():
+		if i == face_textures.size():
+			i = 0
+		$die_face.texture = face_textures[i]
+		i += 1
+		set_active_face(i)
+		await get_tree().create_timer(0.25 / animation_speed).timeout
 	$die_face.texture = face_textures[face_i]
-	set_active_face()
+	set_active_face(face_i)
 
 func set_ability_count() -> void:
 	# Set the ability uses of the die; 1-3 or 1
@@ -255,6 +257,13 @@ func is_valid_target(die : Area2D) -> bool:
 		gm.ui.get_node("invalid_target").show()
 		return false
 
+func clear_targets(targetter : Area2D, set_inactive_false : bool):
+	for target in targets:
+		if set_inactive_false:
+			target.inactive = false
+		target.targetters.remove_at(target.targetters.find(targetter))
+	targets.clear()
+
 func _on_mouse_entered() -> void:
 	# Show the die's faces above the die if there is no Ursa Major target
 	if !selecting_face:
@@ -263,7 +272,7 @@ func _on_mouse_entered() -> void:
 	# Set the die to interactable
 	if !interactable:
 		interactable = true
-	set_active_face()
+	set_active_face(face_i)
 
 func _on_mouse_exited() -> void:
 	# Hide the die faces above the die and set the die to not
@@ -274,12 +283,12 @@ func _on_mouse_exited() -> void:
 	if interactable:
 		interactable = false
 
-func set_active_face() -> void:
+func set_active_face(i : int) -> void:
 	# Set the die faces above the die set the faces that are not the
 	# face up face to be halfway transparent
 	for face in $die_faces.get_children():
 		face.get_node("symbol").texture = face_textures[face.get_index()]
-		if face.get_index() != face_i:
+		if face.get_index() != i:
 			face.modulate.a = 0.5
 		else:
 			face.modulate.a = 1.0
@@ -299,7 +308,7 @@ func _on_face_mouse_entered(index : int) -> void:
 			face.modulate.a = 0.5
 
 func _on_selection_area_mouse_exited() -> void:
-	set_active_face()
+	set_active_face(face_i)
 	hovered_face = null
 
 func _on_remove_button_pressed() -> void:

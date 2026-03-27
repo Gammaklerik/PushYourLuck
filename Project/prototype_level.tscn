@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://2xprqtmbx0kd" path="res://die.tscn" id="2_8sc3k"]
 [ext_resource type="PackedScene" uid="uid://cgcmv1rtys5i0" path="res://targetting_line.tscn" id="2_qkken"]
 [ext_resource type="Texture2D" uid="uid://cb2w826807wf4" path="res://art/dieFaces/damage_1.png" id="4_cow61"]
+[ext_resource type="AudioStream" uid="uid://bth0iaaref1ss" path="res://audio/sfx/invalid.wav" id="4_n2kqs"]
 [ext_resource type="Texture2D" uid="uid://ccnk8d3q2hu8q" path="res://art/dieFaces/damage_2.png" id="5_d54vc"]
 [ext_resource type="Texture2D" uid="uid://dhukgo7anlbmt" path="res://art/dieFaces/damage_3.png" id="6_1pu2k"]
 [ext_resource type="Texture2D" uid="uid://iuybpjjif6qm" path="res://art/dieFaces/nullify.png" id="7_dfbc3"]
@@ -17,9 +18,7 @@
 [ext_resource type="Texture2D" uid="uid://brc2tldxgn2v8" path="res://art/dieFaces/block_1.png" id="14_dfbc3"]
 [ext_resource type="Texture2D" uid="uid://caxwxqgykgrq" path="res://art/dieFaces/block_2.png" id="15_n2kqs"]
 [ext_resource type="Texture2D" uid="uid://dih2ajbnt5nk8" path="res://art/dieFaces/block_3.png" id="16_igk5b"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_yjhn6"]
-font_size = 60
+[ext_resource type="PackedScene" uid="uid://djhb6svl6cel0" path="res://hp_segment.tscn" id="18_igk5b"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_qkken"]
 font_size = 35
@@ -36,10 +35,27 @@ font_color = Color(0, 0, 0, 1)
 [sub_resource type="LabelSettings" id="LabelSettings_w86y6"]
 font_size = 30
 
+[sub_resource type="LabelSettings" id="LabelSettings_n2kqs"]
+font_size = 25
+
 [sub_resource type="LabelSettings" id="LabelSettings_i17kl"]
 font_size = 50
 outline_size = 25
 outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_igk5b"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_igk5b"]
+bg_color = Color(0.10747974, 0.10747974, 0.10747967, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_h2m03"]
+font_size = 50
+font_color = Color(0.2163257, 0.7049003, 0, 1)
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_igk5b"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_ksfxn"]
+font_size = 25
 
 [node name="prototype_level" type="Node2D" unique_id=1969773044]
 
@@ -47,6 +63,10 @@ outline_color = Color(0, 0, 0, 1)
 script = ExtResource("1_yjhn6")
 targetting_line = ExtResource("2_qkken")
 die_scn = ExtResource("2_8sc3k")
+
+[node name="invalid_sfx" type="AudioStreamPlayer" parent="game_manager" unique_id=827750242]
+stream = ExtResource("4_n2kqs")
+mix_target = 1
 
 [node name="canvas" type="CanvasLayer" parent="." unique_id=2011830559]
 
@@ -60,8 +80,8 @@ mouse_filter = 2
 [node name="dev_tools" type="Control" parent="canvas/ui" unique_id=507426505]
 visible = false
 anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_top = 241.0
+offset_bottom = 241.0
 
 [node name="reroll" type="Button" parent="canvas/ui/dev_tools" unique_id=2055222769]
 layout_mode = 0
@@ -93,23 +113,6 @@ offset_top = 260.0
 offset_right = 540.0
 offset_bottom = 291.0
 text = "Ready"
-
-[node name="hp" type="Label" parent="canvas/ui" unique_id=1853663332]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -129.5
-offset_top = -83.0
-offset_right = 129.5
-grow_horizontal = 2
-grow_vertical = 0
-text = "99/99 HP"
-label_settings = SubResource("LabelSettings_yjhn6")
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="invalid_target" type="Label" parent="canvas/ui" unique_id=1536942186]
 visible = false
@@ -282,6 +285,21 @@ label_settings = SubResource("LabelSettings_w86y6")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="turn_count" type="Label" parent="canvas/ui" unique_id=1304478856]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -46.0
+offset_top = 33.0
+offset_right = 46.0
+offset_bottom = 68.0
+grow_horizontal = 2
+text = "Turn 99"
+label_settings = SubResource("LabelSettings_n2kqs")
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="death" type="Panel" parent="canvas/ui" unique_id=1574904654]
 visible = false
 layout_mode = 1
@@ -318,6 +336,187 @@ grow_horizontal = 2
 grow_vertical = 2
 text = "Restart"
 
+[node name="stability" type="Panel" parent="canvas/ui" unique_id=1092335337]
+layout_mode = 0
+offset_right = 262.0
+offset_bottom = 62.0
+
+[node name="label" type="Label" parent="canvas/ui/stability" unique_id=902746806]
+layout_mode = 0
+offset_left = 3.0
+offset_right = 117.0
+offset_bottom = 23.0
+text = "900% stability"
+label_settings = SubResource("LabelSettings_igk5b")
+
+[node name="hp_bar" type="HBoxContainer" parent="canvas/ui/stability" unique_id=265457171]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -259.0
+offset_top = -37.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/separation = 2
+
+[node name="segment_01" parent="canvas/ui/stability/hp_bar" unique_id=192462726 instance=ExtResource("18_igk5b")]
+layout_mode = 2
+
+[node name="segment_02" parent="canvas/ui/stability/hp_bar" unique_id=1195873169 instance=ExtResource("18_igk5b")]
+layout_mode = 2
+
+[node name="segment_03" parent="canvas/ui/stability/hp_bar" unique_id=738373374 instance=ExtResource("18_igk5b")]
+layout_mode = 2
+
+[node name="segment_04" parent="canvas/ui/stability/hp_bar" unique_id=934252096 instance=ExtResource("18_igk5b")]
+layout_mode = 2
+
+[node name="segment_05" parent="canvas/ui/stability/hp_bar" unique_id=1303902382 instance=ExtResource("18_igk5b")]
+layout_mode = 2
+
+[node name="segment_06" parent="canvas/ui/stability/hp_bar" unique_id=1293706321 instance=ExtResource("18_igk5b")]
+layout_mode = 2
+
+[node name="segment_07" parent="canvas/ui/stability/hp_bar" unique_id=517814662 instance=ExtResource("18_igk5b")]
+layout_mode = 2
+
+[node name="segment_08" parent="canvas/ui/stability/hp_bar" unique_id=1393824536 instance=ExtResource("18_igk5b")]
+layout_mode = 2
+
+[node name="segment_09" parent="canvas/ui/stability/hp_bar" unique_id=80512086 instance=ExtResource("18_igk5b")]
+layout_mode = 2
+
+[node name="segment_10" parent="canvas/ui/stability/hp_bar" unique_id=1674681204 instance=ExtResource("18_igk5b")]
+layout_mode = 2
+
+[node name="segment_11" parent="canvas/ui/stability/hp_bar" unique_id=653066945 instance=ExtResource("18_igk5b")]
+layout_mode = 2
+
+[node name="segment_12" parent="canvas/ui/stability/hp_bar" unique_id=629448540 instance=ExtResource("18_igk5b")]
+layout_mode = 2
+
+[node name="shop" type="Control" parent="canvas" unique_id=1533046950]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="shop_bg" type="Panel" parent="canvas/shop" unique_id=2079155574]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_igk5b")
+
+[node name="title" type="Label" parent="canvas/shop/shop_bg" unique_id=583752563]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -22.0
+offset_right = 22.0
+offset_bottom = 23.0
+grow_horizontal = 2
+text = "SHOP"
+label_settings = SubResource("LabelSettings_h2m03")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="market_grid" type="GridContainer" parent="canvas/shop/shop_bg" unique_id=1675292312]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 459.0
+grow_vertical = 2
+
+[node name="player_dice" type="GridContainer" parent="canvas/shop/shop_bg" unique_id=1624003419]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -348.0
+offset_top = 169.0
+offset_right = -141.0
+offset_bottom = -341.0
+grow_horizontal = 0
+grow_vertical = 2
+columns = 3
+
+[node name="die_01" type="TextureRect" parent="canvas/shop/shop_bg/player_dice" unique_id=193498944]
+layout_mode = 2
+size_flags_horizontal = 3
+expand_mode = 4
+stretch_mode = 4
+
+[node name="face" type="TextureRect" parent="canvas/shop/shop_bg/player_dice/die_01" unique_id=1966543690]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_cow61")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="die_02" type="TextureRect" parent="canvas/shop/shop_bg/player_dice" unique_id=94296033]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = SubResource("PlaceholderTexture2D_igk5b")
+expand_mode = 4
+stretch_mode = 4
+
+[node name="face" type="TextureRect" parent="canvas/shop/shop_bg/player_dice/die_02" unique_id=1001834661]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="die_03" type="TextureRect" parent="canvas/shop/shop_bg/player_dice" unique_id=1047375268]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = SubResource("PlaceholderTexture2D_igk5b")
+expand_mode = 4
+stretch_mode = 4
+
+[node name="face" type="TextureRect" parent="canvas/shop/shop_bg/player_dice/die_03" unique_id=1077210474]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="die_04" type="TextureRect" parent="canvas/shop/shop_bg/player_dice" unique_id=585403250]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = SubResource("PlaceholderTexture2D_igk5b")
+expand_mode = 4
+stretch_mode = 4
+
+[node name="face" type="TextureRect" parent="canvas/shop/shop_bg/player_dice/die_04" unique_id=466384136]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="your_dice" type="Label" parent="canvas/shop/shop_bg" unique_id=1443014407]
+layout_mode = 0
+offset_left = 824.0
+offset_top = 57.0
+offset_right = 1002.0
+offset_bottom = 92.0
+text = "Your Daemons"
+label_settings = SubResource("LabelSettings_ksfxn")
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="dice_pool" type="Node2D" parent="." unique_id=2013648158]
 script = ExtResource("1_8sc3k")
 
@@ -345,6 +544,7 @@ face_1 = "reroll"
 face_3 = "damage_1"
 face_5 = "ursa_major"
 
+[connection signal="finished" from="game_manager/invalid_sfx" to="game_manager" method="_on_invalid_sfx_finished"]
 [connection signal="pressed" from="canvas/ui/dev_tools/reroll" to="dice_pool" method="roll_all"]
 [connection signal="pressed" from="canvas/ui/dev_tools/reset_game" to="game_manager" method="_on_restart_pressed"]
 [connection signal="toggled" from="canvas/ui/dev_tools/immune" to="game_manager" method="_on_immune_toggled"]

@@ -196,6 +196,10 @@ offset_bottom = 16.0
 theme_override_font_sizes/font_size = 4
 text = "X"
 
+[node name="anim_timer" type="Timer" parent="." unique_id=1716228942]
+wait_time = 3.0
+one_shot = true
+
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
 [connection signal="mouse_exited" from="selection_area" to="." method="_on_selection_area_mouse_exited"]

@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://djhb6svl6cel0"]
+
+[node name="segment_01" type="ColorRect" unique_id=192462726]
+offset_right = 18.0
+offset_bottom = 18.0
+size_flags_horizontal = 3
+color = Color(9.62615e-08, 0.8229906, 1.1551381e-06, 1)

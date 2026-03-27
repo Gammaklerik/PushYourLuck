@@ -22,16 +22,22 @@ var round : int = 0 :
 	set(value):
 		round = value
 		ui.get_node("round_count").text = "Round " + str(round)
+var turns : int = 1 :
+	set(value):
+		turns = value
+		ui.get_node("turn_count").text = "Turn " + str(turns)
 
 var max_hp : int = 12
 var current_hp : int :
 	set(value):
-		if current_hp > value:
-			print("-" + str(current_hp - value))
-		elif current_hp < value:
-			print("+" + str(value - current_hp))
+		if current_hp > clamp(value, 0, max_hp):
+			for missing_hp in max_hp - clamp(value, 0, max_hp):
+				ui.get_node("stability/hp_bar").get_child(max_hp - 1 - missing_hp).color = Color(0.015, 0.051, 0.015, 1.0)
+		elif current_hp < clamp(value, 0, max_hp):
+			for hp in clamp(value, 0, max_hp):
+				ui.get_node("stability/hp_bar").get_child(0 + hp).color = Color(0, 0.644, 0)
 		current_hp = clamp(value, 0, max_hp)
-		ui.get_node("hp").text = str(current_hp) + "/" + str(max_hp) + " HP"
+		ui.get_node("stability/label").text = str(round_num(float(float(current_hp)/float(max_hp)) * 100)) + "% stability"
 		if current_hp == 0:
 			die()
 
@@ -54,8 +60,12 @@ var targetting : bool = false :
 				line.free()
 var targetting_die : Area2D
 
+var anim_speed : float = 1.0
+
 func _ready() -> void:
 	current_hp = max_hp
+	for die in dice_pool.get_child(1).get_children():
+		die.gm = self
 	create_combat(0)
 
 func _process(delta : float) -> void:
@@ -89,6 +99,7 @@ func _on_ready_pressed() -> void:
 					elif die_face.ends_with("3"):
 						current_hp += 3
 	dice_pool.roll_all()
+	turns += 1
 
 func new_targetting_die(die : Area2D):
 	targetting_die = die
@@ -104,11 +115,15 @@ func enemy_has(face : String) -> bool:
 
 func _on_invalid_target_visibility_changed() -> void:
 	if ui.get_node("invalid_target").is_visible():
-		await get_tree().create_timer(0.75).timeout
-		ui.get_node("invalid_target").hide()
+		$invalid_sfx.play()
+
+func _on_invalid_sfx_finished() -> void:
+	await get_tree().create_timer(0.15).timeout
+	ui.get_node("invalid_target").hide()
 
 func create_combat(dc_index : int):
 	round += 1
+	turns = 1
 	var combat_dc : String = combat_dcs[dc_index].get("difficulty")
 	var combat_points : int
 	var max_die_dc : Dictionary
@@ -169,3 +184,6 @@ func _on_help_pressed() -> void:
 
 func _on_close_pressed() -> void:
 	ui.get_node("help_menu").hide()
+
+func round_num(num : float) -> float:
+	return(round(num*pow(10, 2))/pow(10, 2))
