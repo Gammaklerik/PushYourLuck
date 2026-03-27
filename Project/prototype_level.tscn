@@ -170,7 +170,9 @@ offset_bottom = 413.0
 theme_override_colors/default_color = Color(0, 0, 0, 1)
 text = "The goal is to defeat all enemy dice to move on to the next round. Complete as many rounds as possible.
 
-To kill an enemy damage must be dealt, each number of damage removes 1 face from an enemy die, once all faces are removed the enemy dies. Damage removes the current face, if it is not blank first, then removes random faces."
+To kill an enemy damage must be dealt, 1 damage removes 1 face from an enemy die, once all faces are removed the enemy dies. Damage removes the current face, if the current face is blank then random faces are removed.
+
+Left Click to select a die and to target other dice. Right Click to deselect a target and undo a selection."
 
 [node name="legend" type="RichTextLabel" parent="canvas/ui/help_menu" unique_id=1931687404]
 layout_mode = 0
